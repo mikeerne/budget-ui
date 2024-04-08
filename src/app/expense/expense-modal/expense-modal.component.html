@@ -1,1 +1,63 @@
-Expense Modal
+<!-- ------ -->
+<!-- Header -->
+<!-- ------ -->
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button color="medium" (click)="cancel()">
+        <ion-icon slot="start" name="close"></ion-icon>
+        Cancel
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Edit Expense</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="save()">
+        <ion-icon slot="start" name="save"></ion-icon>
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ------- -->
+<!-- Content -->
+<!-- ------- -->
+<ion-content class="ion-padding">
+  <!-- Enter Expense Name -->
+  <ion-item>
+    <ion-icon name="text" slot="start"></ion-icon>
+    <ion-input maxlength="40" placeholder="Enter the expense's name" required></ion-input>
+  </ion-item>
+
+  <!--Choose Category-->
+  <ion-item>
+    <ion-icon name="pricetag" slot="start"></ion-icon>
+    <ion-input maxlength="40" placeholder="Choose a category" required></ion-input>
+  </ion-item>
+
+  <!--Enter Amount CHF-->
+  <ion-item>
+    <ion-icon name="cash" slot="start"></ion-icon>
+    <ion-input maxlength="40" placeholder="Enter the amount in CHF" required></ion-input>
+    <ion-note slot="end">CHF</ion-note>
+  </ion-item>
+
+  <!-- Choose date from calendar -->
+  <ion-item>
+    <ion-icon slot="start" name="calendar"></ion-icon>
+    <ion-datetime-button datetime="datetime"></ion-datetime-button>
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime presentation="date" id="datetime" formControlName="date"></ion-datetime>
+      </ng-template>
+    </ion-modal>
+  </ion-item>
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="delete()" color="danger">
+      <ion-icon name="trash"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
