@@ -3,6 +3,7 @@
 <!-- ------ -->
 <ion-header>
   <ion-toolbar>
+    <ion-title>{{ category.id ? 'Edit' : 'Add' }} category</ion-title>
     <ion-progress-bar *ngIf="submitting" type="indeterminate"></ion-progress-bar>
     <ion-buttons slot="start">
       <ion-button color="medium" (click)="cancel()" [disabled]="submitting">
@@ -34,4 +35,9 @@
       required="true"
     ></ion-input>
   </ion-item>
+  <ion-fab *ngIf="category.id" slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="delete()" color="danger" [disabled]="submitting">
+      <ion-icon name="trash"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
