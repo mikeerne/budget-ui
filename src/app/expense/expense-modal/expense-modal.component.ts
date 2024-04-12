@@ -17,7 +17,7 @@ import { CategoryService } from 'src/app/category/category.services';
 export class ExpenseModalComponent {
   readonly expenseForm: FormGroup;
   expense: Expense = {} as Expense;
-  categories: Category[] = []; // load categories for selector
+  categories: Category[] = [];
   submitting = false;
   constructor(
     private readonly actionSheetService: ActionSheetService,
@@ -25,7 +25,7 @@ export class ExpenseModalComponent {
     private readonly formBuilder: FormBuilder,
     private readonly modalCtrl: ModalController,
     private readonly toastService: ToastService,
-    private readonly categoryService: CategoryService, // used for loadAllCategories()
+    private readonly categoryService: CategoryService,
   ) {
     this.expenseForm = this.formBuilder.group({
       id: [], // hidden
