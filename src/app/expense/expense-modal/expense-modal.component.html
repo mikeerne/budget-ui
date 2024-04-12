@@ -29,7 +29,7 @@
 
 <!-- Content -->
 <ion-content class="ion-padding ng-pristine ng-invalid md content-ltr hydrated ng-touched" [formGroup]="expenseForm">
-  <!-- input: enter expenses name -->
+  <!--Enter name of expenses -->
   <ion-item
     class="item-has-start-slot item md item-lines-default item-fill-none hydrated ion-pristine ion-invalid ion-touched"
   >
@@ -42,7 +42,7 @@
       required="true"
     />
   </ion-item>
-  <!-- input: Choose category -->
+  <!--Choose category -->
   <ion-item
     class="item-has-start-slot item md item-lines-default item-fill-none hydrated ion-untouched ion-pristine ion-invalid"
   >
@@ -53,6 +53,7 @@
       formControlName="categoryId"
       class="ng-untouched ng-pristine ng-valid md in-item has-placeholder select-ltr select-justify-space-between select-label-placement-start hydrated ion-untouched ion-pristine ion-valid"
     >
+      <ion-select-option [value]="null" />
       <ion-select-option *ngFor="let category of categories" [value]="category.id">{{
         category.name
       }}</ion-select-option>
@@ -114,10 +115,14 @@
   </ion-item>
 
   <!-- delete button-->
-  <!-- dis4static <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="md fab-horizontal-end fab-vertical-bottom hydrated" *ngIf="category.id"> -->
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="md fab-horizontal-end fab-vertical-bottom hydrated">
-    <!-- dis4static <ion-fab-button class="md ion-focusable hydrated" color="danger" (click)="delete()" [disabled]="submitting"> -->
-    <ion-fab-button class="md ion-focusable hydrated" color="danger" (click)="delete()">
+  <ion-fab
+    slot="fixed"
+    vertical="bottom"
+    horizontal="end"
+    class="md fab-horizontal-end fab-vertical-bottom hydrated"
+    *ngIf="expense.id"
+  >
+    <ion-fab-button class="md ion-focusable hydrated" color="danger" (click)="delete()" [disabled]="submitting">
       <ion-icon name="trash" role="img" class="md hydrated"></ion-icon>
     </ion-fab-button>
   </ion-fab>
