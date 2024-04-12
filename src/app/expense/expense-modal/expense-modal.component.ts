@@ -1,62 +1,85 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { filter, finalize, from, mergeMap, tap } from 'rxjs';
 import { CategoryModalComponent } from '../../category/category-modal/category-modal.component';
 import { ActionSheetService } from '../../shared/service/action-sheet.service';
+import { Category, Expense } from '../../shared/domain';
 import { ExpenseService } from '../expense.service';
-import { Validators, FormBuilder, FormGroup } from '@angular/forms';
-import { ToastService } from '../../shared/service/toast.service';
-import { Expense, Category } from '../../shared/domain';
-import { formatISO, parseISO } from 'date-fns';
 import { CategoryService } from 'src/app/category/category.services';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastService } from '../../shared/service/toast.service';
+import { format, formatISO, parseISO } from 'date-fns';
 
 @Component({
   selector: 'app-expense-modal',
   templateUrl: './expense-modal.component.html',
 })
-export class ExpenseModalComponent {
-  readonly expenseForm: FormGroup;
-  expense: Expense = {} as Expense;
+export class ExpenseModalComponent implements OnInit {
+  ngOnInit(): void {
+    const { id, amount, category, date, name } = this.expense;
+    if (category) this.categories.push(category);
+    if (id) this.expenseForm.patchValue({ id, amount, categoryId: category?.id, date, name });
+    this.loadAllCategories();
+  }
+
   categories: Category[] = [];
-  submitting = false;
+  expense: Expense = {} as Expense;
+
   constructor(
     private readonly actionSheetService: ActionSheetService,
-    private readonly expenseService: ExpenseService,
-    private readonly formBuilder: FormBuilder,
     private readonly modalCtrl: ModalController,
-    private readonly toastService: ToastService,
     private readonly categoryService: CategoryService,
+    private readonly formBuilder: FormBuilder,
+    private readonly toastService: ToastService,
+    private readonly expenseService: ExpenseService,
   ) {
     this.expenseForm = this.formBuilder.group({
-      id: [], // hidden
-      categoryId: [], // save category id
-      name: ['', [Validators.required, Validators.minLength(0), Validators.maxLength(40)]],
-      amount: [Validators.min(0.01)], // save value and validate min
-      date: [formatISO(new Date())], // save date and validate against ISO date format
+      id: [], //hidden
+      categoryId: [],
+      name: ['', [Validators.required, Validators.maxLength(40)]],
+      amount: ['', [Validators.required, Validators.pattern(/^\d+$/)]], // Prüfung, damit nur Zahlen zugelassen sind
+      date: [formatISO(new Date())],
     });
   }
 
+  readonly expenseForm: FormGroup;
+  submitting = false;
+
+  // Load all categories
+  private loadAllCategories(): void {
+    this.categoryService.getAllCategories({ sort: 'name,asc' }).subscribe({
+      next: (categories) => {
+        this.categories = [{ id: '', name: '' }, ...categories];
+      },
+      error: (error) => this.toastService.displayErrorToast('Could not load categories', error),
+    });
+  }
+
+  // Cancel
   cancel(): void {
     this.modalCtrl.dismiss(null, 'cancel');
   }
 
+  // Save
   save(): void {
     this.submitting = true;
+    const categoryId = this.expenseForm.value.categoryId === '' ? null : this.expenseForm.value.categoryId; //set categoryId to null if empty string
     this.expenseService
       .upsertExpense({
         ...this.expenseForm.value,
+        categoryId: categoryId, //Ensure categoryId is null if empty string
         date: formatISO(parseISO(this.expenseForm.value.date), { representation: 'date' }),
       })
-      .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
         next: () => {
           this.toastService.displaySuccessToast('Expense saved');
           this.modalCtrl.dismiss(null, 'refresh');
         },
-        error: (error) => this.toastService.displayErrorToast('Could not save expense', error),
+        error: (error) => this.toastService.displayErrorToast('Could not save Expense', error),
       });
   }
 
+  //Delete
   delete(): void {
     from(this.actionSheetService.showDeletionConfirmation('Are you sure you want to delete this expense?'))
       .pipe(
@@ -67,10 +90,10 @@ export class ExpenseModalComponent {
       )
       .subscribe({
         next: () => {
-          this.toastService.displaySuccessToast('Expense deleted');
+          this.toastService.displaySuccessToast('Category deleted');
           this.modalCtrl.dismiss(null, 'refresh');
         },
-        error: (error) => this.toastService.displayErrorToast('Could not delete expense', error),
+        error: (error) => this.toastService.displayErrorToast('Could not delete category', error),
       });
   }
 
@@ -78,20 +101,6 @@ export class ExpenseModalComponent {
     const categoryModal = await this.modalCtrl.create({ component: CategoryModalComponent });
     categoryModal.present();
     const { role } = await categoryModal.onWillDismiss();
-    console.log('role', role);
-  }
-  private loadAllCategories(): void {
-    this.categoryService.getAllCategories({ sort: 'name,asc' }).subscribe({
-      next: (categories) => (this.categories = categories),
-      error: (error) => this.toastService.displayErrorToast('Could not load categories', error),
-    });
-  }
-
-  ionViewWillEnter(): void {
-    this.loadAllCategories();
-    const { id, amount, category, date, name } = this.expense;
-    // both filters with if statement, without it breaks add new expense save function
-    if (category) this.categories.push(category);
-    if (id) this.expenseForm.patchValue({ id, amount, categoryId: category?.id, date, name });
+    if (role === 'refresh') this.loadAllCategories();
   }
 }

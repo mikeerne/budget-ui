@@ -1,129 +1,97 @@
+<!-- ------ -->
 <!-- Header -->
+<!-- ------ -->
 <ion-header>
-  <ion-toolbar class="toolbar-title-default md in-toolbar hydrated">
-    <ion-buttons slot="start" class="buttons-first-slot sc-ion-buttons-md-h sc-ion-buttons-md-s md hydrated">
-      <ion-button
-        color="medium"
-        class="ion-color ion-color-medium md button button-clear in-toolbar in-buttons hydrated"
-        (click)="cancel()"
-        [disabled]="submitting"
-      >
-        <ion-icon slot="start" name="close" role="img" class="md hydrated"></ion-icon>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button color="medium" (click)="cancel()" [disabled]="submitting">
+        <ion-icon slot="start" name="close"></ion-icon>
         Cancel
       </ion-button>
     </ion-buttons>
-    <ion-title class="md title-default hydrated">{{ expense.id ? 'Edit' : 'Add' }} Expense</ion-title>
-    <ion-buttons slot="end" class="buttons-last-slot sc-ion-buttons-md-h sc-ion-buttons-md-s md hydrated">
-      <ion-button
-        class="md button button-clear in-toolbar in-buttons ion-focusable hydrated"
-        (click)="save()"
-        [disabled]="expenseForm.pristine || expenseForm.invalid || submitting"
-      >
-        <ion-icon slot="start" name="save" role="img" class="md hydrated"></ion-icon>
+
+    <ion-title>{{ expense.id ? 'Edit' : 'Add' }} Expense</ion-title>
+    <ion-progress-bar *ngIf="submitting" type="indeterminate"></ion-progress-bar>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="save()" [disabled]="expenseForm.pristine || expenseForm.invalid || submitting">
+        <ion-icon slot="start" name="save"></ion-icon>
         Save
       </ion-button>
     </ion-buttons>
-    <ion-progress-bar *ngIf="submitting" type="indeterminate" />
   </ion-toolbar>
 </ion-header>
 
+<!-- ------- -->
 <!-- Content -->
-<ion-content class="ion-padding ng-pristine ng-invalid md content-ltr hydrated ng-touched" [formGroup]="expenseForm">
-  <!--Enter name of expenses -->
-  <ion-item
-    class="item-has-start-slot item md item-lines-default item-fill-none hydrated ion-pristine ion-invalid ion-touched"
-  >
-    <ion-icon name="text" slot="start" role="img" class="md hydrated"></ion-icon>
+<!-- ------- -->
+<ion-content class="ion-padding" [formGroup]="expenseForm">
+  <!-- Enter name of expenses -->
+  <ion-item>
+    <ion-icon name="text" slot="start"></ion-icon>
     <ion-input
       [disabled]="submitting"
       formControlName="name"
       maxlength="40"
       placeholder="Enter the Expense's name"
       required="true"
-    />
+    ></ion-input>
   </ion-item>
-  <!--Choose category -->
-  <ion-item
-    class="item-has-start-slot item md item-lines-default item-fill-none hydrated ion-untouched ion-pristine ion-invalid"
-  >
-    <ion-icon name="pricetag" slot="start" role="img" class="md hydrated" />
+
+  <!--Choose category-->
+  <ion-item>
+    <ion-icon name="pricetag" slot="start"></ion-icon>
     <ion-select
       interface="popover"
       placeholder="Choose a category"
       formControlName="categoryId"
-      class="ng-untouched ng-pristine ng-valid md in-item has-placeholder select-ltr select-justify-space-between select-label-placement-start hydrated ion-untouched ion-pristine ion-valid"
+      [disabled]="submitting"
     >
-      <ion-select-option [value]="null" />
-      <ion-select-option *ngFor="let category of categories" [value]="category.id">{{
-        category.name
-      }}</ion-select-option>
+      <ion-select-option *ngFor="let category of categories" [value]="category.id"
+        >{{ category.name }}
+      </ion-select-option>
     </ion-select>
-    <ion-button
-      slot="end"
-      class="md button button-small button-solid button-has-icon-only ion-activatable ion-focusable hydrated"
-      (click)="showCategoryModal()"
-    >
-      <!-- show category modal if plus button is selected -->
-      <ion-icon slot="icon-only" name="add" role="img" class="md hydrated" />
+    <ion-button (click)="showCategoryModal()" slot="end">
+      <ion-icon name="add" slot="icon-only"></ion-icon>
     </ion-button>
   </ion-item>
-  <!--Enter amount in CHF -->
-  <ion-item
-    class="item-has-start-slot item md item-lines-default item-fill-none hydrated ion-untouched ion-pristine ion-invalid"
-  >
-    <ion-icon name="cash" slot="start" role="img" class="md hydrated" />
+
+  <!--Enter amount in CHF-->
+  <ion-item>
+    <ion-icon name="cash" slot="start"></ion-icon>
     <ion-input
-      inputmode="decimal"
+      [disabled]="submitting"
+      formControlName="amount"
+      maxlength="40"
       placeholder="Enter the amount in CHF"
       required="true"
-      step="0.05"
       type="number"
-      formControlName="amount"
-      min="0.05"
-      class="ng-untouched ng-pristine ng-invalid sc-ion-input-md-h sc-ion-input-md-s md input-label-placement-start in-item hydrated ion-untouched ion-pristine ion-invalid"
-    />
-    <ion-note slot="end" class="md hydrated">CHF</ion-note>
+    ></ion-input>
+    <ion-note slot="end">CHF</ion-note>
   </ion-item>
-  <!-- input: date -->
-  <ion-item
-    class="item-has-start-slot item-interactive item-datetime item md item-lines-default item-fill-none hydrated ion-untouched ion-pristine ion-valid item-has-value"
-  >
-    <ion-icon name="calendar" slot="start" role="img" class="md hydrated" />
-    <ion-datetime-button datetime="date" class="ion-color ion-color-primary md hydrated" color="primary" />
-    <ion-modal
-      class="ion-datetime-button-overlay md modal-default overlay-hidden hydrated"
-      id="ion-overlay-19"
-      tabindex="-1"
-      style="z-index: 20027"
-      [keepContentsMounted]="true"
-    >
+
+  <!-- date from calendar -->
+  <ion-item>
+    <ion-icon slot="start" name="calendar"></ion-icon>
+    <ion-datetime-button datetime="datetime" [disabled]="submitting"> </ion-datetime-button>
+    <ion-modal [keepContentsMounted]="true">
       <ng-template>
         <ion-datetime
-          id="date"
           locale="en-CH"
           presentation="date"
+          id="datetime"
           formControlName="date"
-          [firstDayOfWeek]="1"
           [showDefaultButtons]="true"
-          class="ng-untouched ng-pristine ng-valid ion-color ion-color-primary md datetime-presentation-date datetime-size-fixed datetime-grid hydrated ion-untouched ion-pristine ion-valid"
         >
-          <span slot="title">Enter the date of the expense</span>
-          <!-- add title to date selector -->
+          <span slot="title">ENTER THE DATE OF THE EXPENSE</span>
         </ion-datetime>
       </ng-template>
     </ion-modal>
   </ion-item>
 
-  <!-- delete button-->
-  <ion-fab
-    slot="fixed"
-    vertical="bottom"
-    horizontal="end"
-    class="md fab-horizontal-end fab-vertical-bottom hydrated"
-    *ngIf="expense.id"
-  >
-    <ion-fab-button class="md ion-focusable hydrated" color="danger" (click)="delete()" [disabled]="submitting">
-      <ion-icon name="trash" role="img" class="md hydrated"></ion-icon>
+  <ion-fab *ngIf="expense.id" slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button (click)="delete()" color="danger" [disabled]="submitting">
+      <ion-icon name="trash"></ion-icon>
     </ion-fab-button>
   </ion-fab>
 </ion-content>
